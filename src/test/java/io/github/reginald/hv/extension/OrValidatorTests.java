@@ -159,7 +159,7 @@ public class OrValidatorTests {
         Assertions.assertTrue(validations.contains("At least one of the fields [a, map.b] required."));
     }
 
-    @Or(fields = {"a", "b"}, allowEmptyString = true)
+    @Or(fields = {"a", "b"}, fieldVerifier = NonNullFieldVerifier.class)
     private record EmptyStringPojo(
             String a,
             String b

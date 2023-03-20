@@ -1,57 +1,37 @@
 package io.github.reginald.hv.extension;
 
-import jakarta.validation.ConstraintValidator;
+import io.github.reginald.hv.extension.internal.CrossingFieldsValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.stream.IntStream;
 
-public class OrValidator implements ConstraintValidator<Or, Object>, PojoFieldAccessHelper {
+public class OrValidator extends CrossingFieldsValidator<Or> {
 
     private String[] fields;
 
-    private boolean allowEmptyString;
+    private Class<? extends FieldAccessor> accessorClass;
+
+    private FieldVerifier fieldVerifier;
 
     @Override
     public void initialize(Or constraintAnnotation) {
         fields = constraintAnnotation.fields();
-        allowEmptyString = constraintAnnotation.allowEmptyString();
+        accessorClass = constraintAnnotation.accessor();
+        fieldVerifier = initializeFieldVerifier(constraintAnnotation.fieldVerifier());
     }
 
     @Override
-    public boolean isValid(Object value, ConstraintValidatorContext context) {
-        var fieldValues = new Object[fields.length];
-        var exceptionThrown = false;
-        for (var i = 0; i < fields.length; i++) {
-            try {
-                fieldValues[i] = accessField(value, fields[i]);
-            } catch (NoSuchFieldException e) {
-                exceptionThrown = true;
-                context.buildConstraintViolationWithTemplate(String.format("Field [%s] doesn't exist.", fields[i]))
-                        .addConstraintViolation();
-            } catch (InvocationTargetException e) {
-                exceptionThrown = true;
-                context.buildConstraintViolationWithTemplate(String.format("Access field [%s] with error: %s", fields[i], e.getMessage()))
-                        .addConstraintViolation();
-            } catch (IllegalAccessException e) {
-                exceptionThrown = true;
-                context.buildConstraintViolationWithTemplate(String.format("Can NOT access field [%s]", fields[i]))
-                        .addConstraintViolation();
-            } catch (NoSuchMethodException e) {
-                exceptionThrown = true;
-                context.buildConstraintViolationWithTemplate(String.format("Field [%s] getter method doesn't exist.", fields[i]))
-                        .addConstraintViolation();
-            }
-        }
-        if (exceptionThrown) {
-            return false;
-        }
+    protected String[] fields() {
+        return fields;
+    }
 
-        return Arrays.stream(fieldValues).anyMatch(v -> {
-            if (v == null) {
-                return false;
-            }
-            return !(v instanceof CharSequence) || allowEmptyString || ((CharSequence) v).length() != 0;
-        });
+    @Override
+    protected Class<? extends FieldAccessor> accessor() {
+        return accessorClass;
+    }
+
+    @Override
+    protected boolean isValid(Object[] fieldValues, ConstraintValidatorContext context) {
+        return IntStream.range(0, fieldValues.length).anyMatch(i -> fieldVerifier.verify(fields[i], fieldValues[i]));
     }
 }

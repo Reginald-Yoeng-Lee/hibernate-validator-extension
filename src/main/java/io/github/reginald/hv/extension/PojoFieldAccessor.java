@@ -6,9 +6,40 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 
-public interface PojoFieldAccessHelper {
+/**
+ * Accessor for accessing any field of any object or map, including nested fields.
+ * <br>
+ * <i>This implementation using reflection for accessing the field values of the target object. So make sure to
+ * {@code open} the class of the target pojo when using JPMS.</i>
+ */
+public class PojoFieldAccessor implements FieldAccessor {
 
-    default Object accessField(Object pojo, String field) throws NoSuchFieldException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    /**
+     * Accesses the field of the very target pojo, including nested fields.
+     * <br>
+     * e.g. Suppose we have a record like
+     * <pre>
+     *     {@code
+     *     record Pojo(String a, NestedPojo inner) {
+     *         record NestedPojo(String b) {}
+     *     }
+     *     }
+     * </pre>
+     * The field {@code b} of the inner record {@code NestedPojo} could be referenced as {@code inner.b}. That is, if we
+     * want to indicate that at least one of the string {@code a} or the string {@code b} contains a valid value, we could
+     * use this annotation like
+     * <pre>
+     *     &#064;Or(fields = {"a", "inner.b"})
+     *     record Pojo (String a, NestedPojo inner) {...}
+     * </pre>
+     * This works for both nested POJO and Map.
+     *
+     * @param pojo  The target object contains the field requires to be accessing. Could be a pojo or a map.
+     * @param field The field to be accessing.
+     * @return {@inheritDoc}
+     * @throws AccessFieldException {@inheritDoc}
+     */
+    public Object access(Object pojo, String field) throws AccessFieldException {
         var firstSeparator = field.indexOf(".");
         var rootField = firstSeparator >= 0 ? field.substring(0, firstSeparator) : field;
         var subField = firstSeparator >= 0 ? field.substring(firstSeparator + 1) : "";
@@ -19,12 +50,17 @@ public interface PojoFieldAccessHelper {
         if (pojo instanceof Map) {
             value = ((Map<?, ?>) pojo).get(rootField);
         } else {
-            value = getFieldValue(pojo, rootField);
+            try {
+                value = getFieldValue(pojo, rootField);
+            } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                throw new AccessFieldException("Try to access field " + rootField + " failed.", e);
+            }
         }
         if (subField.isEmpty()) {
             return value;
         }
-        return accessField(value, subField);
+        return access(value, subField);
     }
 
     private Object getFieldValue(Object pojo, String field) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
