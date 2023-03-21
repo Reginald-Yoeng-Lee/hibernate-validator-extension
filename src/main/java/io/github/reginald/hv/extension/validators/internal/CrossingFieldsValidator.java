@@ -88,7 +88,8 @@ public abstract class CrossingFieldsValidator<A extends Annotation> implements C
             context.buildConstraintViolationWithTemplate(String.format("Field [%s] getter method doesn't exist.", field))
                     .addConstraintViolation();
         } else {
-            context.buildConstraintViolationWithTemplate(String.format("Access field [%s] with unknown error: %s", field, Optional.ofNullable(cause).map(Throwable::getMessage).orElse("(unknown)")));
+            context.buildConstraintViolationWithTemplate(String.format("Access field [%s] with unknown error: %s", field, Optional.ofNullable(cause).map(Throwable::getMessage).orElse("(unknown)")))
+                    .addConstraintViolation();
         }
     }
 
