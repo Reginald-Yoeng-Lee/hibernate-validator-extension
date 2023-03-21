@@ -1,4 +1,4 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -28,8 +28,22 @@ public @interface Or {
      */
     String[] fields();
 
+    /**
+     * Defines the field accessor implementation.
+     *
+     * @return The implementation class of the field accessor gonna be used.
+     * @see FieldAccessor
+     * @see PojoFieldAccessor#access(Object, String)
+     */
     Class<? extends FieldAccessor> accessor() default PojoFieldAccessor.class;
 
+    /**
+     * Defines the field verifier implementation.
+     *
+     * @return The implementation class of the field verifier gonna be used.
+     * @see FieldVerifier
+     * @see NonEmptyStringFieldVerifier#verify(Object, String, Object)
+     */
     Class<? extends FieldVerifier> fieldVerifier() default NonEmptyStringFieldVerifier.class;
 
     /**

@@ -1,4 +1,4 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 import java.util.Arrays;
 

@@ -1,10 +1,14 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 /**
  * Accessor of any field of any target object.
- * <p>
+ * <br>
  * Generally be used by the validation annotations and the related validators. The implementations should provide the proper
  * ways to access the value of the field of the specific object.
+ * <br>
+ * <b>
+ *     Notice: All the implementations should provide a constructor with no arguments.
+ * </b>
  */
 public interface FieldAccessor {
 
@@ -16,7 +20,7 @@ public interface FieldAccessor {
      * @return The value of the field within the {@code bean}
      * @throws AccessFieldException Throws when unable to access the field.
      */
-    Object access(Object bean, String field) throws AccessFieldException;
+    FieldTuple access(Object bean, String field) throws AccessFieldException;
 
     /**
      * Wrapper for the actual {@link Exception} causing the failure of accessing the field.
@@ -38,5 +42,8 @@ public interface FieldAccessor {
         public AccessFieldException(Throwable cause) {
             super(cause);
         }
+    }
+
+    record FieldTuple(String field, Object value) {
     }
 }

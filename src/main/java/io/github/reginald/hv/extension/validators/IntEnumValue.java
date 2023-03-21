@@ -1,15 +1,18 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+/**
+ * Indicates that the validating value should be {@code int} and equal to one of the provided constants.
+ */
 @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = LongEnumValueValidator.class)
+@Constraint(validatedBy = IntEnumValueValidator.class)
 @Documented
-public @interface LongEnumValue {
+public @interface IntEnumValue {
 
     String message() default "Value ${validatedValue} not valid. Should be one of {values}";
 
@@ -17,7 +20,12 @@ public @interface LongEnumValue {
 
     Class<? extends Payload>[] payload() default {};
 
-    long[] value();
+    /**
+     * Defines the valid candidates which the validating value could be.
+     *
+     * @return The valid constants.
+     */
+    int[] value();
 
     boolean allowEmpty() default false;
 }

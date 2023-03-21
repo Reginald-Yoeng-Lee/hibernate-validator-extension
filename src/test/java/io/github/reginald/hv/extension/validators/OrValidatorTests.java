@@ -1,4 +1,4 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

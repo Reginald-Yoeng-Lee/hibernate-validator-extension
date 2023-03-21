@@ -1,4 +1,4 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 public class StringEnumValueValidator extends EnumValueValidator<StringEnumValue, String> {
 

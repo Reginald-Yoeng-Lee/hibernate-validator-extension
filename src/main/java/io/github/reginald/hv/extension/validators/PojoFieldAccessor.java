@@ -1,4 +1,4 @@
-package io.github.reginald.hv.extension;
+package io.github.reginald.hv.extension.validators;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -39,7 +39,11 @@ public class PojoFieldAccessor implements FieldAccessor {
      * @return {@inheritDoc}
      * @throws AccessFieldException {@inheritDoc}
      */
-    public Object access(Object pojo, String field) throws AccessFieldException {
+    public FieldTuple access(Object pojo, String field) throws AccessFieldException {
+        return new FieldTuple(field, accessValue(pojo, field));
+    }
+
+    private Object accessValue(Object pojo, String field) throws AccessFieldException {
         var firstSeparator = field.indexOf(".");
         var rootField = firstSeparator >= 0 ? field.substring(0, firstSeparator) : field;
         var subField = firstSeparator >= 0 ? field.substring(firstSeparator + 1) : "";
@@ -60,7 +64,7 @@ public class PojoFieldAccessor implements FieldAccessor {
         if (subField.isEmpty()) {
             return value;
         }
-        return access(value, subField);
+        return accessValue(value, subField);
     }
 
     private Object getFieldValue(Object pojo, String field) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
