@@ -1,10 +1,7 @@
 package io.github.reginald.hv.extension.validators;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -12,14 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class OrValidatorTests {
-
-    private static Validator validator;
-
-    @BeforeAll
-    public static void initValidator() {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
-    }
+public class OrValidatorTests extends BasicValidatorTests {
 
     @Or(fields = {"a", "b"})
     private record SimplePojo(
