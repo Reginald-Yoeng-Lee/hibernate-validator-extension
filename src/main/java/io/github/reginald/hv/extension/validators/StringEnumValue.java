@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface StringEnumValue {
 
-    String message() default "Value ${validatedValue} not valid. Should be one of {values}";
+    String message() default "Value ${validatedValue} not valid. Should be one of {value}";
 
     Class<?>[] groups() default {};
 
